@@ -1,0 +1,88 @@
+ // Sumatoria (integración) de la velocidad para el calculo de grados Z
+    angleZ += ((double)(prev_rateZ + rateZ) * sampleTime) / 2000;
+    
+    prev_rateZ = rateZ;  // Se debe recordar una muestra previa de velocidad
+    // Se coloca el ángulo recorrido en una escala de 0 a 360 grados
+    if (angleZ < 0){
+      angleZ += 360;
+    }
+    else if (angleZ >= 360)
+    {
+      angleZ -= 360;
+    }
+
+    // Impresión de los datos por consola
+    Serial.print("AnguloZ: ");
+    Serial.print(angleZ);
+    Serial.print("\tVelZ: ");
+    Serial.print(rateZ);
+    
+    Serial.print("\tAnguloY: ");
+    Serial.print(angleY);
+    Serial.print("\tVelY: ");
+    Serial.println(rateY);
+    
+    Serial.print("\tAnguloX: ");
+    Serial.print(angleX);
+    Serial.print("\tVelX: ");
+    Serial.println(rateX); 
+  }
+}
+
+// Función del cálculo de Offset y nivel de ruido
+void calculoOffset(){
+
+  //**************************************
+  // Promedio de muestras
+  for(int n=0;n<sampleNum;n++){
+    gyro.read();
+    dc_offsetX+=(int)gyro.g.x;
+  }
+  dc_offsetX=dc_offsetX/sampleNum;
+
+  // Calculo de nivel de ruido
+  for(int n=0;n<sampleNum;n++){
+    gyro.read();
+    if((int)gyro.g.x-dc_offsetY>noiseX)
+      noiseX=(int)gyro.g.x-dc_offsetX;
+    else if((int)gyro.g.x-dc_offsetX<-noiseX)
+      noiseX=-(int)gyro.g.x-dc_offsetX;
+  }
+  noiseX=noiseX/100;
+   
+  //**************************************
+  // Promedio de muestras  
+  for(int n=0;n<sampleNum;n++){
+    gyro.read();
+    dc_offsetY+=(int)gyro.g.y;
+  }
+  dc_offsetY=dc_offsetY/sampleNum;
+  
+  // Calculo de nivel de ruido
+  for(int n=0;n<sampleNum;n++){
+    gyro.read();
+    if((int)gyro.g.y-dc_offsetY>noiseY)
+      noiseY=(int)gyro.g.y-dc_offsetY;
+    else if((int)gyro.g.y-dc_offsetY<-noiseY)
+      noiseY=-(int)gyro.g.y-dc_offsetY;
+  }
+  noiseY=noiseY/100;
+  
+  //**************************************
+  // Promedio de muestras  
+  for(int n=0;n<sampleNum;n++){
+    gyro.read();
+    dc_offsetZ+=(int)gyro.g.z;
+  }
+  dc_offsetZ=dc_offsetZ/sampleNum;
+
+  // Calculo de nivel de ruido
+  for(int n=0;n<sampleNum;n++){
+    gyro.read();
+    if((int)gyro.g.z-dc_offsetZ>noiseZ)
+      noiseZ=(int)gyro.g.z-dc_offsetZ;
+    else if((int)gyro.g.z-dc_offsetZ<-noiseZ)
+      noiseZ=-(int)gyro.g.z-dc_offsetZ;
+  }
+  noiseZ=noiseZ/100;
+}
